@@ -1,17 +1,32 @@
-import { useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import './App.css';
 import Board from './components/Board';
 import { PLAYER_ONE, PLAYER_TWO } from './config/const';
 import useInterval from './hooks/useInterval';
+import sumCoordinates from './utils/sumCoordinates';
 
 const initialState = [
   PLAYER_ONE, PLAYER_TWO
 ]
 
-function updateGame(state, action){
+function updateGame(players, action){
   if(action.type === 'move'){
-    console.log('toca mover')
-    return state;
+    const newPlayers = players.map(player => ({
+      ...player,
+      position: sumCoordinates(player.position, player.direction)
+    }));
+    return newPlayers;
+  }
+  if (action.type === 'changeDirection'){
+    console.log(players[0].keys)
+    const newPlayers = players.map(player => (
+      {
+        ...player,
+        direction: player.keys[action.key] ? player.keys[action.key] : player.direction
+        
+      }
+  ));
+    return newPlayers;
   }
 }
 
@@ -22,7 +37,20 @@ function App() {
   useInterval(function(){
     gameDispatch({type: 'move'});
 
-  }, 100)
+  }, 1000)
+
+  useEffect(function(){
+    function handleKeyPress(event){
+      const key = `${event.keyCode}`;
+      gameDispatch({ type: 'changeDirection', key});
+    }
+
+    document.addEventListener('keydown', handleKeyPress);
+
+    return function cleanUp(){
+      document.removeEventListener('keydown', handleKeyPress);
+    }
+  }, []);
 
   return (
     <Board players={players} />

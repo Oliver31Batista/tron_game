@@ -10,7 +10,7 @@ export default function Board({players}) {
         const context = canvas.getContext('2d');
 
         context.beginPath();
-            context.strokeStyle = '#272727';
+            context.strokeStyle = '#001900';
 
             //moving for x
             for ( let i = UNIT * 2; i <= BOARD_SIZE; i+= UNIT * 2 ){
@@ -29,14 +29,16 @@ export default function Board({players}) {
         context.closePath();
     }, []);
 
-    useEffect(function(){
-        const context = canvasRef.current.getContext('2d');
-
-        players.forEach(player => {
+    useEffect(
+        function () {
+          const context = canvasRef.current.getContext('2d');
+          players.forEach((player) => {
             context.fillStyle = player.color;
-            context.fillRect(player.position.x, player.position.y, UNIT, UNIT)
-        })
-    }, [players])
+            context.fillRect(player.position.x, player.position.y, UNIT, UNIT);
+          });
+        },
+        [players]
+      );
 
-    return <canvas ref={canvasRef} width={BOARD_SIZE} height={BOARD_SIZE} className="board"/>
+    return <canvas ref={canvasRef} id="board" width={BOARD_SIZE} height={BOARD_SIZE} className="board"/>
 }
