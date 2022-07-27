@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from "react";
 import Board from "./components/Board";
-import {UNIT, BOARD_SIZE, PLAYER_ONE, PLAYER_TWO } from "./config/const";
+import { UNIT, BOARD_SIZE, PLAYER_ONE, PLAYER_TWO } from "./config/const";
 import useInterval from "./hooks/useInterval";
 import sumCoordinates from "./utils/sumCoordinates";
 import playerCanChangeToDirection from "./utils/playerCanChangeToDirection";
@@ -13,11 +13,11 @@ const players = [PLAYER_ONE, PLAYER_TWO];
 const initialState = {
   players,
   playableCells: getPlayableCells(
-    BOARD_SIZE, 
-    UNIT, 
-    players.map(player => getCellKey(player.position.x, player.position.y))
-  )
-  };
+    BOARD_SIZE,
+    UNIT,
+    players.map((player) => getCellKey(player.position.x, player.position.y))
+  ),
+};
 
 function updateGame(game, action) {
   if (action.type === "move") {
@@ -25,9 +25,29 @@ function updateGame(game, action) {
       ...player,
       position: sumCoordinates(player.position, player.direction),
     }));
+
+    const newPlayersWithCollisions = newPlayers.map((player) => {
+      const myCellKey = getCellKey(player.position.x, player.position.y);
+      return {
+        ...player,
+        hasDied:
+          !game.playableCells.includes(myCellKey) ||
+          newPlayers
+            .filter((p) => p.id !== player.id)
+            .map((p) => getCellKey(p.position.x, p.position.y))
+            .includes(myCellKey),
+      };
+    });
+
+    const newOcupiedCells = game.players.map(player => getCellKey(player.position.x, player.position.y));
+
+    const playableCells = game.playableCells.filter(playableCell => {
+      return !newOcupiedCells.includes(playableCell);
+    })
+
     return {
-      players: newPlayers,
-      playableCells: game.playableCells
+      players: newPlayersWithCollisions,
+      playableCells: playableCells,
     };
   }
   if (action.type === "changeDirection") {
@@ -42,7 +62,7 @@ function updateGame(game, action) {
     }));
     return {
       players: newPlayers,
-      playableCells: game.playableCells
+      playableCells: game.playableCells,
     };
   }
 }
@@ -50,9 +70,16 @@ function updateGame(game, action) {
 function App() {
   const [game, gameDispatch] = useReducer(updateGame, initialState);
 
+  const players = game.players;
+  const diedPlayers = players.filter(player => player.hasDied)
+
+  if (diedPlayers.length > 0){
+    console.log(diedPlayers)
+  }
+
   useInterval(function () {
     gameDispatch({ type: "move" });
-  }, 500);
+  }, diedPlayers.length > 0 ? null : 100);
 
   useEffect(function () {
     function handleKeyPress(event) {
