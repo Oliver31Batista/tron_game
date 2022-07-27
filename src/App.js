@@ -1,12 +1,15 @@
 import React, { useEffect, useReducer } from "react";
 import Board from "./components/Board";
-import { PLAYER_ONE, PLAYER_TWO } from "./config/const";
+import {BOARD_SIZE, PLAYER_ONE, PLAYER_TWO } from "./config/const";
 import useInterval from "./hooks/useInterval";
 import sumCoordinates from "./utils/sumCoordinates";
 import playerCanChangeToDirection from "./utils/playerCanChangeToDirection";
 import "./App.css";
 
-const initialState = [PLAYER_ONE, PLAYER_TWO];
+const initialState = [
+  players,
+  playableCells: 
+];
 
 function updateGame(players, action) {
   if (action.type === "move") {
