@@ -1,27 +1,38 @@
 import React, { useEffect, useReducer } from "react";
 import Board from "./components/Board";
-import {BOARD_SIZE, PLAYER_ONE, PLAYER_TWO } from "./config/const";
+import {UNIT, BOARD_SIZE, PLAYER_ONE, PLAYER_TWO } from "./config/const";
 import useInterval from "./hooks/useInterval";
 import sumCoordinates from "./utils/sumCoordinates";
 import playerCanChangeToDirection from "./utils/playerCanChangeToDirection";
 import "./App.css";
+import getPlayableCells from "./utils/getPlayableCells";
+import getCellKey from "./utils/getCellKey";
 
-const initialState = [
+const players = [PLAYER_ONE, PLAYER_TWO];
+
+const initialState = {
   players,
-  playableCells: 
-];
+  playableCells: getPlayableCells(
+    BOARD_SIZE, 
+    UNIT, 
+    players.map(player => getCellKey(player.position.x, player.position.y))
+  )
+  };
 
-function updateGame(players, action) {
+function updateGame(game, action) {
   if (action.type === "move") {
-    const newPlayers = players.map((player) => ({
+    const newPlayers = game.players.map((player) => ({
       ...player,
       position: sumCoordinates(player.position, player.direction),
     }));
-    return newPlayers;
+    return {
+      players: newPlayers,
+      playableCells: game.playableCells
+    };
   }
   if (action.type === "changeDirection") {
     console.log(players[0].keys);
-    const newPlayers = players.map((player) => ({
+    const newPlayers = game.players.map((player) => ({
       ...player,
       direction:
         player.keys[action.key] &&
@@ -29,16 +40,19 @@ function updateGame(players, action) {
           ? player.keys[action.key]
           : player.direction,
     }));
-    return newPlayers;
+    return {
+      players: newPlayers,
+      playableCells: game.playableCells
+    };
   }
 }
 
 function App() {
-  const [players, gameDispatch] = useReducer(updateGame, initialState);
+  const [game, gameDispatch] = useReducer(updateGame, initialState);
 
   useInterval(function () {
     gameDispatch({ type: "move" });
-  }, 1000);
+  }, 500);
 
   useEffect(function () {
     function handleKeyPress(event) {
@@ -53,7 +67,7 @@ function App() {
     };
   }, []);
 
-  return <Board players={players} />;
+  return <Board players={game.players} />;
 }
 
 export default App;
