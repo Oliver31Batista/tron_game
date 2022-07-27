@@ -7,6 +7,8 @@ import playerCanChangeToDirection from "./utils/playerCanChangeToDirection";
 import "./App.css";
 import getPlayableCells from "./utils/getPlayableCells";
 import getCellKey from "./utils/getCellKey";
+import Start from "./components/Start";
+
 
 const players = [PLAYER_ONE, PLAYER_TWO];
 
@@ -95,7 +97,16 @@ function App() {
     };
   }, []);
 
-  return <Board players={game.players} />;
+  function handleStart(){
+    console.log('listo para comenzar')
+  }
+
+  return (
+  <>
+  <Board players={game.players} />
+  {game.gameStatus === GAME_READY && <Start onClick={handleStart} />}
+  </>
+  )
 }
 
 export default App;
