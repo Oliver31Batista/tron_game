@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from "react";
 import Board from "./components/Board";
-import { UNIT, BOARD_SIZE, PLAYER_ONE, PLAYER_TWO } from "./config/const";
+import { UNIT, BOARD_SIZE, PLAYER_ONE, PLAYER_TWO, GAME_READY, GAME_PLAYING } from "./config/const";
 import useInterval from "./hooks/useInterval";
 import sumCoordinates from "./utils/sumCoordinates";
 import playerCanChangeToDirection from "./utils/playerCanChangeToDirection";
@@ -17,6 +17,7 @@ const initialState = {
     UNIT,
     players.map((player) => getCellKey(player.position.x, player.position.y))
   ),
+  gameStatus: GAME_READY
 };
 
 function updateGame(game, action) {
@@ -79,7 +80,7 @@ function App() {
 
   useInterval(function () {
     gameDispatch({ type: "move" });
-  }, diedPlayers.length > 0 ? null : 100);
+  }, game.gameStatus !== GAME_PLAYING ? null : 100);
 
   useEffect(function () {
     function handleKeyPress(event) {
