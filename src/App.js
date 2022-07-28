@@ -1,6 +1,14 @@
 import React, { useEffect, useReducer } from "react";
 import Board from "./components/Board";
-import { UNIT, BOARD_SIZE, PLAYER_ONE, PLAYER_TWO, GAME_READY, GAME_PLAYING } from "./config/const";
+import {
+  UNIT,
+  BOARD_SIZE,
+  PLAYER_ONE,
+  PLAYER_TWO,
+  GAME_READY,
+  GAME_PLAYING,
+  GAME_ENDED,
+} from "./config/const";
 import useInterval from "./hooks/useInterval";
 import sumCoordinates from "./utils/sumCoordinates";
 import playerCanChangeToDirection from "./utils/playerCanChangeToDirection";
@@ -8,7 +16,7 @@ import "./App.css";
 import getPlayableCells from "./utils/getPlayableCells";
 import getCellKey from "./utils/getCellKey";
 import Start from "./components/Start";
-
+import Result from "./components/Result";
 
 const players = [PLAYER_ONE, PLAYER_TWO];
 
@@ -19,10 +27,13 @@ const initialState = {
     UNIT,
     players.map((player) => getCellKey(player.position.x, player.position.y))
   ),
-  gameStatus: GAME_READY
+  gameStatus: GAME_READY,
 };
 
 function updateGame(game, action) {
+  if (action.type === "start") {
+    return { ...initialState, gameStatus: GAME_PLAYING };
+  }
   if (action.type === "move") {
     const newPlayers = game.players.map((player) => ({
       ...player,
@@ -42,15 +53,21 @@ function updateGame(game, action) {
       };
     });
 
-    const newOcupiedCells = game.players.map(player => getCellKey(player.position.x, player.position.y));
+    const newOcupiedCells = game.players.map((player) =>
+      getCellKey(player.position.x, player.position.y)
+    );
 
-    const playableCells = game.playableCells.filter(playableCell => {
+    const playableCells = game.playableCells.filter((playableCell) => {
       return !newOcupiedCells.includes(playableCell);
-    })
+    });
 
     return {
       players: newPlayersWithCollisions,
       playableCells: playableCells,
+      gameStatus:
+      newPlayersWithCollisions.filter((player) => player.hasDied).length === 0
+        ? GAME_PLAYING
+        : GAME_ENDED
     };
   }
   if (action.type === "changeDirection") {
@@ -71,22 +88,32 @@ function updateGame(game, action) {
 }
 
 function App() {
+  let result = null;
+
   const [game, gameDispatch] = useReducer(updateGame, initialState);
 
   const players = game.players;
-  const diedPlayers = players.filter(player => player.hasDied)
+  const diedPlayers = players.filter((player) => player.hasDied);
 
-  if (diedPlayers.length > 0){
-    console.log(diedPlayers)
+  if (diedPlayers.length > 0) {
+    console.log(diedPlayers);
   }
 
-  useInterval(function () {
-    gameDispatch({ type: "move" });
-  }, game.gameStatus !== GAME_PLAYING ? null : 100);
+  useInterval(
+    function () {
+      gameDispatch({ type: "move" });
+    },
+    game.gameStatus !== GAME_PLAYING ? null : 100
+  );
 
   useEffect(function () {
     function handleKeyPress(event) {
       const key = `${event.keyCode}`;
+      if (key === "13") {
+        if (game.gameStatus === GAME_READY) {
+          handleStart();
+        }
+      }
       gameDispatch({ type: "changeDirection", key });
     }
 
@@ -97,16 +124,30 @@ function App() {
     };
   }, []);
 
-  function handleStart(){
-    console.log('listo para comenzar')
+  function handleStart() {
+    gameDispatch({ type: "start" });
+  }
+
+  function handleRestart(){
+    console.log('quiero jugar de nuevo')
+  }
+
+  if (game.gameStatus === GAME_ENDED) {
+    const winningPlayers = game.players.filter(player => !player.hasDied);
+    if(winningPlayers.length === 0){
+      result = 'Empate';
+    }else {
+      result = `Ganador: ${winningPlayers.map(player => `Jugador ${player.id}`).join(',')}` 
+    }
   }
 
   return (
-  <>
-  <Board players={game.players} />
-  {game.gameStatus === GAME_READY && <Start onClick={handleStart} />}
-  </>
-  )
+    <>
+      <Board players={game.players} />
+      {game.gameStatus === GAME_READY && <Start onClick={handleStart} />}
+      {game.gameStatus === GAME_ENDED && <Result onClick={handleRestart} result={result} />}
+    </>
+  );
 }
 
 export default App;
