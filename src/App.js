@@ -34,6 +34,10 @@ function updateGame(game, action) {
   if (action.type === "start") {
     return { ...initialState, gameStatus: GAME_PLAYING };
   }
+
+  if (action.type === "restart") {
+    return { ...initialState, gameStatus: GAME_READY };
+  }
   if (action.type === "move") {
     const newPlayers = game.players.map((player) => ({
       ...player,
@@ -65,9 +69,9 @@ function updateGame(game, action) {
       players: newPlayersWithCollisions,
       playableCells: playableCells,
       gameStatus:
-      newPlayersWithCollisions.filter((player) => player.hasDied).length === 0
-        ? GAME_PLAYING
-        : GAME_ENDED
+        newPlayersWithCollisions.filter((player) => player.hasDied).length === 0
+          ? GAME_PLAYING
+          : GAME_ENDED,
     };
   }
   if (action.type === "changeDirection") {
@@ -83,6 +87,7 @@ function updateGame(game, action) {
     return {
       players: newPlayers,
       playableCells: game.playableCells,
+      gameStatus: game.gameStatus,
     };
   }
 }
@@ -113,6 +118,9 @@ function App() {
         if (game.gameStatus === GAME_READY) {
           handleStart();
         }
+        if (game.gameStatus === GAME_ENDED) {
+          handleRestart();
+        }
       }
       gameDispatch({ type: "changeDirection", key });
     }
@@ -128,24 +136,28 @@ function App() {
     gameDispatch({ type: "start" });
   }
 
-  function handleRestart(){
-    console.log('quiero jugar de nuevo')
+  function handleRestart() {
+    gameDispatch({ type: "restart" });
   }
 
   if (game.gameStatus === GAME_ENDED) {
-    const winningPlayers = game.players.filter(player => !player.hasDied);
-    if(winningPlayers.length === 0){
-      result = 'Empate';
-    }else {
-      result = `Ganador: ${winningPlayers.map(player => `Jugador ${player.id}`).join(',')}` 
+    const winningPlayers = game.players.filter((player) => !player.hasDied);
+    if (winningPlayers.length === 0) {
+      result = "Empate";
+    } else {
+      result = `Ganador: ${winningPlayers
+        .map((player) => `Jugador ${player.id}`)
+        .join(",")}`;
     }
   }
 
   return (
     <>
-      <Board players={game.players} />
+      <Board players={game.players} gameStatus={game.gameStatus} />
       {game.gameStatus === GAME_READY && <Start onClick={handleStart} />}
-      {game.gameStatus === GAME_ENDED && <Result onClick={handleRestart} result={result} />}
+      {game.gameStatus === GAME_ENDED && (
+        <Result onClick={handleRestart} result={result} />
+      )}
     </>
   );
 }
