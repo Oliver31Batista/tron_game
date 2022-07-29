@@ -1,0 +1,68 @@
+.logo-container{
+    width: 60vh;
+    height: 40vh;
+    margin: auto;
+}
+
+.logo-container img{
+    width: 100%;
+}
+
+.title-container {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .neon-title {
+    font-family: neon;
+    color: #FB4264;
+    font-size: 9vw;
+    line-height: 9vw;
+    text-shadow: 0 0 3vw #F40A35;
+  }
+  
+  .neon-subtitle {
+    font-family: neon;
+    color: #426DFB;
+    font-size: 9vw;
+    line-height: 9vw;
+    text-shadow: 0 0 3vw #2356FF;
+  }
+  
+  .neon-title {
+    animation: neon-title 1s ease infinite;
+    -moz-animation: neon-title 1s ease infinite;
+    -webkit-animation: neon-title 1s ease infinite;
+  }
+  
+  @keyframes neon-title {
+    0%,
+    100% {
+        text-shadow: 0 0 1vw #1041FF, 0 0 3vw #1041FF, 0 0 10vw #1041FF, 0 0 10vw #1041FF, 0 0 .4vw #8BFDFE, .5vw .5vw .1vw #147280;
+        color: #28D7FE;
+      }
+      50% {
+        text-shadow: 0 0 .5vw #082180, 0 0 1.5vw #082180, 0 0 5vw #082180, 0 0 5vw #082180, 0 0 .2vw #082180, .5vw .5vw .1vw #0A3940;
+        color: #146C80;
+      }
+  }
+  
+  .neon-subtitle {
+    animation: subtitle 2s linear infinite;
+    -moz-animation: subtitle 2s linear infinite;
+    -webkit-animation: subtitle 2s linear infinite;
+    -o-animation: subtitle 2s linear infinite;
+  }
+  
+  @keyframes subtitle {
+    0%,
+    100% {
+        text-shadow: 0 0 1vw #1041FF, 0 0 3vw #1041FF, 0 0 10vw #1041FF, 0 0 10vw #1041FF, 0 0 .4vw #8BFDFE, .5vw .5vw .1vw #147280;
+        color: #28D7FE;
+      }
+      50% {
+        text-shadow: 0 0 .5vw #082180, 0 0 1.5vw #082180, 0 0 5vw #082180, 0 0 5vw #082180, 0 0 .2vw #082180, .5vw .5vw .1vw #0A3940;
+        color: #146C80;
+      }
+  }

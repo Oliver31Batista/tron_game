@@ -1,12 +1,12 @@
 import { React, useEffect, useRef } from "react";
-import { UNIT, BOARD_SIZE, GAME_READY } from "../config/const";
+import { UNIT, BOARD_SIZE, GAME_READY, GAME_ENDED } from "../config/const";
 
 export default function Board({ players, gameStatus }) {
   const canvasRef = useRef();
 
   useEffect(
     function () {
-      if (gameStatus === GAME_READY) {
+      if (gameStatus === GAME_READY ) {
         const canvas = canvasRef.current;
         const context = canvas.getContext("2d");
         context.clearRect(0, 0, BOARD_SIZE, BOARD_SIZE);
